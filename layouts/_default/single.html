@@ -1,42 +1,38 @@
 {{ define "main" }}
 
-{{/* Breadcrumbs */}}
+{{ $currentContext := . }}
 
-{{ partial "breadcrumbs.html" . }}
+{{ with .Resources.GetMatch "header" }}
+<div class="header-image-container">
+    <img src="{{ .Permalink }}#full" class="header-image">
+    <div class="overlay-content">
+        <div {{ if $currentContext.Param "autonumber" }} class="autonumber" {{ end }}>
+            <div class="single-intro-container">
+                <h1 class="single-title">{{ $currentContext.Title }}</h1>
+                {{ with $currentContext.Param "summary" }}
+                <p class="single-summary">{{ . }}</p>
+                {{ end }}
+                <p class="single-readtime">
+                    {{ with $currentContext.Date }}
+                    {{ $dateMachine := . | time.Format "2006-01-02T15:04:05-07:00" }}
+                    {{ $dateHuman := . | time.Format ":date_long" }}
+                    <time datetime="{{ $dateMachine }}">{{ $dateHuman }}</time>
+                    {{ end }}
+                    {{ if $currentContext.Param "readTime" }}
+                    &nbsp; · &nbsp;
+                    {{ $currentContext.ReadingTime }} min read
+                    {{ end }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}
 
-<div {{ if .Param "autonumber" }} class="autonumber" {{ end }}>
-
-  <div class="single-intro-container">
-
-    {{/* Title and Summary */}}
-
-    <h1 class="single-title">{{ .Title }}</h1>
-    {{ with .Param "summary" }}
-    <p class="single-summary">{{ . }}</p>
-    {{ end }}
-
-    {{/* Reading Time */}}
-
-    <p class="single-readtime">
-      {{ with .Date }}
-      {{ $dateMachine := . | time.Format "2006-01-02T15:04:05-07:00" }}
-      {{ $dateHuman := . | time.Format ":date_long" }}
-      <time datetime="{{ $dateMachine }}">{{ $dateHuman }}</time>
-      {{end}}
-
-      {{ if .Param "readTime" }}
-      &nbsp; · &nbsp;
-      {{ .ReadingTime }} min read
-      {{end }}
-    </p>
-
-  </div>
-
+<div class="content-container">
   {{ if .Param "showTags" }}
-
   {{ $taxonomy := "tags" }}
   {{ with .Param $taxonomy }}
-
   <div class="single-tags">
     {{ range $index, $tag := . }}
     {{ with $.Site.GetPage (printf "/%s/%s" $taxonomy $tag) -}}
@@ -46,11 +42,8 @@
     {{ end }}
     {{ end }}
   </div>
-
   {{ end }}
   {{ end }}
-
-  {{/* Table of Content */}}
 
   {{ if .Param "toc" }}
   <aside class="toc">
@@ -59,29 +52,20 @@
   </aside>
   {{ end }}
 
-  {{/* Page content */}}
-
   <div class="single-content">
     {{ .Content }}
     {{ partial "comments.html" . }}
   </div>
 
-  {{/* Next prev controls */}}
-
   {{ if not (.Param "hidePagination") }}
   {{ partial "pagination-single.html" . }}
   {{ end }}
 
-  {{/* Back to top */}}
-
   {{ if not (.Param "hideBackToTop") }}
   <div class="back-to-top">
-    <a href="#top">
-      back to top
-    </a>
+    <a href="#top">back to top</a>
   </div>
   {{ end }}
-
 </div>
 
 {{ end }}
